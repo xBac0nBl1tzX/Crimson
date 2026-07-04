@@ -4,6 +4,10 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
+local Crimson = {}
+local Tabs = {}
+local CurrentTab = nil
+
 -- Remove old GUI
 pcall(function()
 	local old = PlayerGui:FindFirstChild("CrimsonLib")
@@ -436,10 +440,6 @@ function Crimson:CreateSplash(Settings)
 end
 
 --// Tab System
-
-local Crimson = {}
-local Tabs = {}
-local CurrentTab = nil
 
 function Crimson:CreateTab(TabName)
 
