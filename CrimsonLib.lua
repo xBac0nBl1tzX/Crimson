@@ -361,6 +361,8 @@ AnimateButton(Close)
 
 function Crimson:CreateSplash(Settings)
 
+	print("Splash called")
+
 	local Text = Settings.Text or "Loading..."
 
 	local Splash = Instance.new("Frame")
@@ -371,6 +373,8 @@ function Crimson:CreateSplash(Settings)
 	Splash.BorderSizePixel = 0
 	Splash.ZIndex = 999
 	Splash.Parent = ScreenGui
+
+    print("Splash parented")
 
 	local Label = Instance.new("TextLabel")
 	Label.BackgroundTransparency = 1
@@ -413,7 +417,7 @@ function Crimson:CreateSplash(Settings)
 		task.wait(0.075)
 	end
 
-	task.wait(1)
+	task.wait(5)
 
 	-- Fade out
 	TweenService:Create(
