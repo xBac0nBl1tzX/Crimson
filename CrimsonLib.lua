@@ -5,6 +5,10 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 local Crimson = {}
+
+local Tab = {}
+Tab.__index = Tab
+
 local Tabs = {}
 local CurrentTab = nil
 
@@ -506,14 +510,14 @@ function Crimson:CreateTab(TabName)
 
 	end)
 
-	local Tab = {}
+	local NewTab = setmetatable({}, Tab)
 
-	Tab.Page = Page
-	Tab.Button = Button
+NewTab.Page = Page
+NewTab.Button = Button
 
-	table.insert(Tabs, Tab)
+table.insert(Tabs, NewTab)
 
-	return Tab
+return NewTab
 
 end
 
@@ -530,7 +534,7 @@ function Tab:CreateButton(Settings)
 	Button.Font = Enum.Font.GothamBold
 	Button.TextSize = 16
 	Button.TextColor3 = Color3.fromRGB(255,255,255)
-	Button.Parent = Page
+	Button.Parent = self.Page
 
 	local Corner = Instance.new("UICorner")
 	Corner.CornerRadius = UDim.new(0,8)
@@ -609,7 +613,7 @@ function Tab:CreateToggle(Settings)
 	Toggle.BackgroundColor3 = Color3.fromRGB(28,28,28)
 	Toggle.BorderSizePixel = 0
 	Toggle.Text = ""
-	Toggle.Parent = Page
+	Toggle.Parent = self.Page
 
 	local Corner = Instance.new("UICorner")
 	Corner.CornerRadius = UDim.new(0,8)
@@ -669,7 +673,7 @@ function Tab:CreateTextbox(Settings)
 	Frame.Size = UDim2.new(1,0,0,68)
 	Frame.BackgroundColor3 = Color3.fromRGB(28,28,28)
 	Frame.BorderSizePixel = 0
-	Frame.Parent = Page
+	Frame.Parent = self.Page
 
 	local Corner = Instance.new("UICorner")
 	Corner.CornerRadius = UDim.new(0,8)
@@ -730,7 +734,7 @@ function Tab:CreateDropdown(Settings)
 	Holder.BackgroundColor3 = Color3.fromRGB(28,28,28)
 	Holder.BorderSizePixel = 0
 	Holder.ClipsDescendants = true
-	Holder.Parent = Page
+	Holder.Parent = self.Page
 
 	local Corner = Instance.new("UICorner")
 	Corner.CornerRadius = UDim.new(0,8)
