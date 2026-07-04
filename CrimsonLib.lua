@@ -4,6 +4,8 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
+print("CrimsonLib loaded!")
+
 local Crimson = {}
 
 local Tab = {}
@@ -364,7 +366,7 @@ AnimateButton(Close)
 --// Splash Screen
 
 function Crimson:CreateSplash(Settings)
-
+    print("CreateSplash called!")
 	print("Splash called")
 
 	local Text = Settings.Text or "Loading..."
