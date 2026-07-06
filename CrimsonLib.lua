@@ -478,10 +478,16 @@ function Crimson:CreateTab(TabName)
 	Page.Visible = false
 	Page.Parent = Content
 
+    Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	Page.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 20)
+end)
+	
 	local Layout = Instance.new("UIListLayout")
 	Layout.Padding = UDim.new(0,8)
 	Layout.Parent = Page
 
+
+	
 	local Padding = Instance.new("UIPadding")
 	Padding.PaddingTop = UDim.new(0,10)
 	Padding.PaddingLeft = UDim.new(0,10)
