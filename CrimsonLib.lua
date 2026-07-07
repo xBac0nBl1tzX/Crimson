@@ -116,18 +116,18 @@ local SidebarPadding = Instance.new("UIPadding")
 SidebarPadding.PaddingTop = UDim.new(0,10)
 SidebarPadding.Parent = Sidebar
 
--- Content Page
-local Page = Instance.new("ScrollingFrame")
-Page.Name = TabName
-Page.Size = UDim2.new(1,0,1,0)
-Page.CanvasSize = UDim2.new(0,0,0,0)
-Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Page.ScrollBarThickness = 5
-Page.ScrollingDirection = Enum.ScrollingDirection.Y
-Page.BackgroundTransparency = 1
-Page.BorderSizePixel = 0
-Page.Visible = false
-Page.Parent = Content
+-- Content Area
+local Content = Instance.new("Frame")
+Content.Name = "Content"
+Content.Size = UDim2.new(1, -170, 1, -46)
+Content.Position = UDim2.new(0, 170, 0, 41)
+Content.BackgroundColor3 = Color3.fromRGB(22,22,22)
+Content.BorderSizePixel = 0
+Content.Parent = Main
+
+local ContentCorner = Instance.new("UICorner")
+ContentCorner.CornerRadius = UDim.new(0,10)
+ContentCorner.Parent = Content
 
 local ContentCorner = Instance.new("UICorner")
 ContentCorner.CornerRadius = UDim.new(0,10)
@@ -471,12 +471,20 @@ function Crimson:CreateTab(TabName)
 	ButtonCorner.Parent = Button
 
 	-- Content Page
-	local Page = Instance.new("Frame")
-	Page.Name = TabName
-	Page.Size = UDim2.new(1,0,1,0)
-	Page.BackgroundTransparency = 1
-	Page.Visible = false
-	Page.Parent = Content
+local Page = Instance.new("ScrollingFrame")
+Page.Name = TabName
+Page.Size = UDim2.new(1,0,1,0)
+Page.BackgroundTransparency = 1
+Page.BorderSizePixel = 0
+Page.Visible = false
+Page.Parent = Content
+
+Page.CanvasSize = UDim2.new(0,0,0,0)
+Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Page.ScrollBarThickness = 5
+Page.ScrollingDirection = Enum.ScrollingDirection.Y
+Page.ScrollBarImageColor3 = Color3.fromRGB(170,0,30)
+Page.CanvasPosition = Vector2.new(0,0)
 
 	local Layout = Instance.new("UIListLayout")
 	Layout.Padding = UDim.new(0,8)
