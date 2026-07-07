@@ -116,14 +116,18 @@ local SidebarPadding = Instance.new("UIPadding")
 SidebarPadding.PaddingTop = UDim.new(0,10)
 SidebarPadding.Parent = Sidebar
 
--- Content Area
-local Content = Instance.new("Frame")
-Content.Name = "Content"
-Content.Size = UDim2.new(1, -170, 1, -46)
-Content.Position = UDim2.new(0, 170, 0, 41)
-Content.BackgroundColor3 = Color3.fromRGB(22,22,22)
-Content.BorderSizePixel = 0
-Content.Parent = Main
+-- Content Page
+local Page = Instance.new("ScrollingFrame")
+Page.Name = TabName
+Page.Size = UDim2.new(1,0,1,0)
+Page.CanvasSize = UDim2.new(0,0,0,0)
+Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+Page.ScrollBarThickness = 5
+Page.ScrollingDirection = Enum.ScrollingDirection.Y
+Page.BackgroundTransparency = 1
+Page.BorderSizePixel = 0
+Page.Visible = false
+Page.Parent = Content
 
 local ContentCorner = Instance.new("UICorner")
 ContentCorner.CornerRadius = UDim.new(0,10)
@@ -840,6 +844,270 @@ function Tab:CreateDropdown(Settings)
 
 	return Holder
 
+end
+
+function Tab:CreateSlider(Settings)
+	local Title = Settings.Title or "Slider"
+	local Min = Settings.Min or 0
+	local Max = Settings.Max or 100
+	local Increment = Settings.Increment or 1
+	local Value = Settings.Default or Min
+	local Callback = Settings.Callback or function() end
+
+	Value = math.clamp(Value, Min, Max)
+
+	local Slider = {}
+
+	local Frame = Instance.new("Frame")
+	Frame.Size = UDim2.new(1,0,0,70)
+	Frame.BackgroundColor3 = Color3.fromRGB(28,28,28)
+	Frame.BorderSizePixel = 0
+	Frame.Parent = self.Page
+
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(0,8)
+	Corner.Parent = Frame
+
+	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Position = UDim2.new(0,12,0,8)
+	TitleLabel.Size = UDim2.new(0.6,0,0,18)
+	TitleLabel.Font = Enum.Font.GothamBold
+	TitleLabel.Text = Title
+	TitleLabel.TextColor3 = Color3.new(1,1,1)
+	TitleLabel.TextSize = 16
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Parent = Frame
+
+	local ValueLabel = Instance.new("TextLabel")
+	ValueLabel.BackgroundTransparency = 1
+	ValueLabel.Position = UDim2.new(0.6,0,0,8)
+	ValueLabel.Size = UDim2.new(0.4,-12,0,18)
+	ValueLabel.Font = Enum.Font.GothamBold
+	ValueLabel.TextColor3 = Color3.fromRGB(220,220,220)
+	ValueLabel.TextSize = 16
+	ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+	ValueLabel.Parent = Frame
+
+	local Bar = Instance.new("Frame")
+	Bar.Size = UDim2.new(1,-24,0,12)
+	Bar.Position = UDim2.new(0,12,0,46)
+	Bar.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	Bar.BorderSizePixel = 0
+	Bar.Parent = Frame
+
+	local BarCorner = Instance.new("UICorner")
+	BarCorner.CornerRadius = UDim.new(1,0)
+	BarCorner.Parent = Bar
+
+	local Fill = Instance.new("Frame")
+	Fill.BackgroundColor3 = Color3.fromRGB(170,0,30)
+	Fill.BorderSizePixel = 0
+	Fill.Size = UDim2.new(0,0,1,0)
+	Fill.Parent = Bar
+
+	local FillCorner = Instance.new("UICorner")
+	FillCorner.CornerRadius = UDim.new(1,0)
+	FillCorner.Parent = Fill
+
+	local Knob = Instance.new("TextButton")
+	Knob.Size = UDim2.new(0,32,0,32)
+	Knob.AnchorPoint = Vector2.new(0.5,0.5)
+	Knob.Position = UDim2.new(0,0,0.5,0)
+	Knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+	Knob.BorderSizePixel = 0
+	Knob.AutoButtonColor = false
+	Knob.Text = ""
+	Knob.Parent = Bar
+
+	local KnobCorner = Instance.new("UICorner")
+	KnobCorner.CornerRadius = UDim.new(1,0)
+	KnobCorner.Parent = Knob
+
+	local UIS = game:GetService("UserInputService")
+	local dragging = false
+
+	local function UpdateVisual()
+		local Percent = (Value - Min) / (Max - Min)
+		Fill.Size = UDim2.new(Percent,0,1,0)
+		Knob.Position = UDim2.new(Percent,0,0.5,0)
+		ValueLabel.Text = tostring(Value)
+	end
+
+	local function SetValue(Percent)
+		Percent = math.clamp(Percent,0,1)
+
+		local NewValue = Min + ((Max-Min) * Percent)
+		NewValue = math.floor(NewValue / Increment + 0.5) * Increment
+		NewValue = math.clamp(NewValue,Min,Max)
+
+		if NewValue ~= Value then
+			Value = NewValue
+			UpdateVisual()
+			pcall(function()
+				Callback(Value)
+			end)
+		end
+	end
+
+	Bar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			SetValue((input.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X)
+		end
+	end)
+
+	Knob.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(input)
+		if dragging and (
+			input.UserInputType == Enum.UserInputType.MouseMovement
+			or input.UserInputType == Enum.UserInputType.Touch
+		) then
+			SetValue((input.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X)
+		end
+	end)
+
+	UIS.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+		end
+	end)
+
+	function Slider:Set(NewValue)
+		Value = math.clamp(NewValue,Min,Max)
+		UpdateVisual()
+		pcall(function()
+			Callback(Value)
+		end)
+	end
+
+	function Slider:Get()
+		return Value
+	end
+
+	UpdateVisual()
+
+	return Slider
+end
+
+function Tab:CreateText(Settings)
+	local Text = Settings.Text or "Text"
+
+	local Label = Instance.new("TextLabel")
+	Label.Size = UDim2.new(1,0,0,24)
+	Label.BackgroundTransparency = 1
+	Label.Font = Enum.Font.Gotham
+	Label.Text = Text
+	Label.TextSize = 15
+	Label.TextColor3 = Color3.fromRGB(255,255,255)
+	Label.TextWrapped = true
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	Label.TextYAlignment = Enum.TextYAlignment.Top
+	Label.AutomaticSize = Enum.AutomaticSize.Y
+	Label.Parent = self.Page
+
+	return Label
+end
+
+function Tab:CreateParagraph(Settings)
+	local Title = Settings.Title or "Paragraph"
+	local Content = Settings.Content or "Description"
+
+	local Frame = Instance.new("Frame")
+	Frame.Size = UDim2.new(1,0,0,70)
+	Frame.BackgroundColor3 = Color3.fromRGB(28,28,28)
+	Frame.BorderSizePixel = 0
+	Frame.AutomaticSize = Enum.AutomaticSize.Y
+	Frame.Parent = self.Page
+
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(0,8)
+	Corner.Parent = Frame
+
+	local Padding = Instance.new("UIPadding")
+	Padding.PaddingTop = UDim.new(0,10)
+	Padding.PaddingBottom = UDim.new(0,10)
+	Padding.PaddingLeft = UDim.new(0,12)
+	Padding.PaddingRight = UDim.new(0,12)
+	Padding.Parent = Frame
+
+	local Layout = Instance.new("UIListLayout")
+	Layout.Padding = UDim.new(0,4)
+	Layout.FillDirection = Enum.FillDirection.Vertical
+	Layout.SortOrder = Enum.SortOrder.LayoutOrder
+	Layout.Parent = Frame
+
+	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Size = UDim2.new(1,0,0,20)
+	TitleLabel.Font = Enum.Font.GothamBold
+	TitleLabel.Text = Title
+	TitleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+	TitleLabel.TextSize = 16
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Parent = Frame
+
+	local ContentLabel = Instance.new("TextLabel")
+	ContentLabel.BackgroundTransparency = 1
+	ContentLabel.Size = UDim2.new(1,0,0,40)
+	ContentLabel.AutomaticSize = Enum.AutomaticSize.Y
+	ContentLabel.Font = Enum.Font.Gotham
+	ContentLabel.Text = Content
+	ContentLabel.TextWrapped = true
+	ContentLabel.TextColor3 = Color3.fromRGB(180,180,180)
+	ContentLabel.TextSize = 14
+	ContentLabel.TextXAlignment = Enum.TextXAlignment.Left
+	ContentLabel.TextYAlignment = Enum.TextYAlignment.Top
+	ContentLabel.Parent = Frame
+
+	return Frame
+end
+
+function Tab:CreateSection(Settings)
+	local Title = Settings.Title or "Section"
+
+	local Section = Instance.new("Frame")
+	Section.Size = UDim2.new(1,0,0,28)
+	Section.BackgroundTransparency = 1
+	Section.Parent = self.Page
+
+	local LeftLine = Instance.new("Frame")
+	LeftLine.AnchorPoint = Vector2.new(0,0.5)
+	LeftLine.Position = UDim2.new(0,0,0.5,0)
+	LeftLine.Size = UDim2.new(0.28,0,0,2)
+	LeftLine.BackgroundColor3 = Color3.fromRGB(170,0,30)
+	LeftLine.BorderSizePixel = 0
+	LeftLine.Parent = Section
+
+	local RightLine = Instance.new("Frame")
+	RightLine.AnchorPoint = Vector2.new(1,0.5)
+	RightLine.Position = UDim2.new(1,0,0.5,0)
+	RightLine.Size = UDim2.new(0.28,0,0,2)
+	RightLine.BackgroundColor3 = Color3.fromRGB(170,0,30)
+	RightLine.BorderSizePixel = 0
+	RightLine.Parent = Section
+
+	local Label = Instance.new("TextLabel")
+	Label.AnchorPoint = Vector2.new(0.5,0.5)
+	Label.Position = UDim2.new(0.5,0,0.5,0)
+	Label.Size = UDim2.new(0.4,0,1,0)
+	Label.BackgroundTransparency = 1
+	Label.Font = Enum.Font.GothamBold
+	Label.Text = Title
+	Label.TextSize = 16
+	Label.TextColor3 = Color3.fromRGB(170,0,30)
+	Label.TextXAlignment = Enum.TextXAlignment.Center
+	Label.Parent = Section
+
+	return Section
 end
 
 return Crimson
