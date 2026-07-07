@@ -8,6 +8,9 @@ local Crimson = {}
 local Tabs = {}
 local CurrentTab = nil
 
+local Tab = {}
+Tab.__index = Tab
+
 -- Remove old GUI
 pcall(function()
 	local old = PlayerGui:FindFirstChild("CrimsonLib")
@@ -506,14 +509,14 @@ function Crimson:CreateTab(TabName)
 
 	end)
 
-	local Tab = {}
+	local NewTab = setmetatable({}, Tab)
 
-	Tab.Page = Page
-	Tab.Button = Button
+NewTab.Page = Page
+NewTab.Button = Button
 
-	table.insert(Tabs, Tab)
+table.insert(Tabs, NewTab)
 
-	return Tab
+return NewTab
 
 end
 
